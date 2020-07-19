@@ -1,9 +1,10 @@
+import os
 import random
 from hoshino import Service, R
 from hoshino.typing import CQEvent
 from hoshino.util import DailyNumberLimiter
 
-sv = Service('pcr-login-bonus', bundle='pcr娱乐', help_='[星乃签到] 给主さま盖章章')
+sv = Service('pcr-login-bonus', bundle='pcr娱乐', help_='[凪酱签到] 给主さま盖章章')
 
 lmt = DailyNumberLimiter(1)
 login_presents = [
@@ -43,7 +44,8 @@ todo_list = [
     '搓一把日麻'
 ]
 
-@sv.on_fullmatch(('签到', '盖章', '妈', '妈?', '妈妈', '妈!', '妈！', '妈妈！'), only_to_me=True)
+stamp_folder = R.img('priconne/stamp').path
+@sv.on_fullmatch(('签到', '盖章', '盖章章', '妈', '妈?', '妈妈', '妈!', '妈！', '妈妈！'), only_to_me=True)
 async def give_okodokai(bot, ev: CQEvent):
     uid = ev.user_id
     if not lmt.check(uid):
@@ -52,4 +54,6 @@ async def give_okodokai(bot, ev: CQEvent):
     lmt.increase(uid)
     present = random.choice(login_presents)
     todo = random.choice(todo_list)
-    await bot.send(ev, f'\nおかえりなさいませ、主さま{R.img("priconne/kokkoro_stamp.png").cqcode}\n{present}を獲得しました\n私からのプレゼントです\n主人今天要{todo}吗？', at_sender=True)
+    filelist = os.listdir(stamp_folder)
+    random.shuffle(filelist)
+    await bot.send(ev, f'\nおかえりなさいませ、主さま{R.img("priconne/stamp/", filelist[0]).cqcode}\n{present}を獲得しました\n私からのプレゼントです\n主人今天要{todo}吗？', at_sender=True)
